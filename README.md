@@ -1,5 +1,5 @@
 
-# stockFE
+# stockBE
 
 
 1. when users click on the website, a user can see the company’s info and about me.
