@@ -1,9 +1,7 @@
-
 # stockBE
 
-
 1. when users click on the website, a user can see the company’s info and about me.
-user will have to sign up/login
+   user will have to sign up/login
 
 2. when user sign up, they will see:
 
@@ -41,9 +39,60 @@ user will have to sign up/login
   <li>dalete, delete all user info. </li>
 </ul>
 
-
 6.logout button:
+
 <ul>
 <li>log user out</li>
 </ul>
 
+<h2>Routes:</h2>
+  <tr>
+    <th>Routes:</th>
+    <th>Function:</th>
+    <th>Methods:</th>
+  </tr>
+    <tr>
+    <td>/user/login</td>
+    <td>user login</td>
+    <td>Post</td>
+  </tr>
+    <tr>
+    <td>/user/signup</td>
+    <td>user signup</td>
+    <td>Post</td>
+  </tr>
+    <tr>
+    <td>/user/verify</td>
+    <td>verify user</td>
+    <td>Get</td>
+  </tr>
+    <tr>
+    <td>/user/edit</td>
+    <td>user can edit</td>
+    <td>Put</td>
+  </tr>
+    <tr>
+    <td>/user/delete</td>
+    <td>user delete</td>
+    <td>Delete</td>
+  </tr>
+    <tr>
+    <td>/stock</td>
+    <td>get all stock</td>
+    <td>get</td>
+  </tr>
+    <tr>
+    <td>/stock/:id</td>
+    <td>get one stock</td>
+    <td>get</td>
+  </tr>
+    <tr>
+    <td>/stock/add</td>
+    <td>add stock</td>
+    <td>post</td>
+  </tr>
+    <tr>
+    <td>/stock/sell</td>
+    <td>sell</td>
+    <td>post</td>
+  </tr>
