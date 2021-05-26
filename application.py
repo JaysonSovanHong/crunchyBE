@@ -19,7 +19,7 @@ CORS(app)
 
 load_dotenv()
 app = Flask(__name__)
-app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get('DATABASE_URL')
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get('DATABASE_URL').replace('postgres','postgresql')
 models.db.init_app(app)
 
 crypto_api = "https://api.coinranking.com/v2/coins?limit=100"
