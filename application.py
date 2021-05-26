@@ -122,7 +122,6 @@ def stocks():
     try:
         response = requests.get(f'https://api.coinranking.com/v2/coins?limit=100').json()
         if response:
-            print('found api',response)
             return{"message": response}
     except sqlalchemy.exc.IntegrityError:
         return{'message':'can not find crypto'}
@@ -132,16 +131,34 @@ def stocks():
 @app.route('/stock',methods=["GET"])
 def stock():
     try:
-        
-        response = requests.get(f'https://api.coinranking.com/v2/search-suggestions?query={query}').json()
+        query = request.args.get('query')
+
+        response = requests.get(f'https://api.coinranking.com/v2/search-suggestions?query={query}').json()   
+
         if response:
-            print('message', response)
-            return{'message':"one stock"}
+            return{'message':"one stock", "result":response["data"]["coins"]}
+        else:
+            return{"message": 'can not find data'},400
         
     except sqlalchemy.exc.IntegrityError:
         return{"message":'can not find con'}
         
-    
+
+@app.route('/stock/history',methods=["GET"])
+def stock_history():
+    try:
+        time = request.args.get('time')
+        query = request.args.get('query')
+        response = requests.get(f'https://api.coinranking.com/v2/coin/{query}/history?timePeriod={time}').json()   
+
+        if response:
+            return{'message':"one stock", "result":response}
+        else:
+            return{"message": 'can not find data'},400
+        
+    except sqlalchemy.exc.IntegrityError:
+        return{"message":'can not find con'}
+
 
 @app.route('/stock/<int:id>/add',methods=["POST"])
 def add():
