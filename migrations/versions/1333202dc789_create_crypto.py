@@ -1,7 +1,7 @@
 """create-crypto
 
 Revision ID: 1333202dc789
-Revises: a9bb42660800
+Revises: c6e10c2276a1
 Create Date: 2021-05-21 16:09:02.695816
 
 """
@@ -11,7 +11,7 @@ import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision = '1333202dc789'
-down_revision = 'a9bb42660800'
+down_revision = 'c6e10c2276a1'
 branch_labels = None
 depends_on = None
 

@@ -99,22 +99,7 @@ def user_info():
                 return {"user":user.to_json()}
         except sqlalchemy.exc.IntegrityError:
             return{'message':'can not update user'},404
-    # elif request.method == 'DELETE':
-    #     try:
-    #        user= models.User.query.filter_by(id=request.headers["Authorization"]).first()
-    #         if user:
-    #             models.db.session.delete(user)
-    #             models.db.session.commit()
-    #             return {"user":user.to_json()}
-    #     except sqlalchemy.exc.IntegrityError:
-    #         return{'message':'can not update user'},404
 
-             
-
-            
-    
-    
-    
 
 @app.route('/stocks',methods=["GET"])
 
@@ -141,8 +126,32 @@ def stock():
             return{"message": 'can not find data'},400
         
     except sqlalchemy.exc.IntegrityError:
-        return{"message":'can not find con'}
+        return{"message":'can not find coin'}
+
+
+
+@app.route('/stock/info/',methods=["POST"])
+def stock_info():
+    try:
+        query = request.args.get('query')
+        print(query)
+
+        response = requests.get(f'https://api.coinranking.com/v2/coin/{query}').json()   
+
+        if response:
+            return{'message':"one stock", "result":response}
+        else:
+            return{"message": 'can not find data'},400
         
+    except sqlalchemy.exc.IntegrityError:
+        return{"message":'can not find info'}
+
+
+        
+
+
+
+
 
 @app.route('/stock/history',methods=["GET"])
 def stock_history():
@@ -160,13 +169,9 @@ def stock_history():
         return{"message":'can not find con'}
 
 
-@app.route('/stock/<int:id>/add',methods=["POST"])
-def add():
-    return{'message':"add stock"}
 
-@app.route('/stock/<int:id>/sell',methods=["POST"])
-def sell():
-    return{'message':"sell stock"}
+
+
 
 
 @app.after_request
