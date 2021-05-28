@@ -42,7 +42,7 @@ class Watchlist(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    crypto_id = db.Column(db.Integer, db.ForeignKey('crypto.id'))
+    crypto_id = db.Column(db.String, db.ForeignKey('crypto.id'))
     name = db.Column(db.String)
    
     

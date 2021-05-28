@@ -1,7 +1,7 @@
 import os
-
 import requests
 import sqlalchemy
+from werkzeug.datastructures import Authorization
 import models
 import jwt
 import bcrypt
@@ -169,6 +169,29 @@ def stock_history():
         return{"message":'can not find con'}
 
 
+@app.route('/stock/save', methods=['POST'])
+def stock_save():
+    try:
+        user =  models.User.query.filter_by(email= request.json['email']).first()
+        watchlist = models.Watchlist(
+             user_id = user.id,
+             crypto_id = request.json['uuid'],
+             name = request.json['name']
+        )
+        models.db.session.add(watchlist)
+        models.db.session.commit()
+        return{"message":'watchlist has been added', "watchlist": watchlist.to_json()}
+    except sqlalchemy.exc.IntegrityError:
+        return{"message":'can not save'}
+
+@app.route("/stock/watchlist", methods=['GET'])
+def watch_list():
+    try:
+        print(request.headers["Authorization"])
+        watchlist=models.Watchlist.query.filter_by(user_id=request.headers["Authorization"]).all()
+        return{"message":'watchlist has been added', "watchlist": [w.to_json() for w in watchlist] }
+    except sqlalchemy.exc.IntegrityError:
+        return{"message":'can not get to watchlist'}
 
 
 

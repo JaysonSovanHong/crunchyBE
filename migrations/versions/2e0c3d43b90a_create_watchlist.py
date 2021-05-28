@@ -21,7 +21,7 @@ def upgrade():
     'watchlist',
     sa.Column('id', sa.Integer, primary_key=True),
     sa.Column('user_id', sa.Integer),
-    sa.Column('crypto_id', sa.Integer),
+    sa.Column('crypto_id', sa.String),
     sa.Column('name', sa.String)
   )
 
