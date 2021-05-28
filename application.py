@@ -189,6 +189,7 @@ def watch_list():
     try:
         print(request.headers["Authorization"])
         watchlist=models.Watchlist.query.filter_by(user_id=request.headers["Authorization"]).all()
+        print(watchlist)
         return{"message":'watchlist has been added', "watchlist": [w.to_json() for w in watchlist] }
     except sqlalchemy.exc.IntegrityError:
         return{"message":'can not get to watchlist'}
