@@ -29,10 +29,6 @@ api_key = os.environ.get("crypto_api")
 
 @app.route('/', methods=["GET"])
 def root():
-    # response = jsonify(message="Simple server is running")
-    # # Enable Access-Control-Allow-Origin
-    # response.headers.add("Access-Control-Allow-Origin", "*")
-    # return response
     return {"message":'helllo world'}
 
 @app.route('/user/login', methods=["POST"])
