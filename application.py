@@ -1,17 +1,19 @@
 import os
 import requests
 import sqlalchemy
-from werkzeug.datastructures import Authorization
 import models
 import jwt
 import bcrypt
 
-
-
 from flask_cors import CORS
-
 from dotenv import load_dotenv
 from flask import Flask, request,jsonify
+
+from flask_bcrypt import Bcrypt
+
+
+app = Flask(__name__)
+bcrypt= Bcrypt(app)
 
 
 app = Flask(__name__)
@@ -31,48 +33,66 @@ api_key = os.environ.get("crypto_api")
 def root():
     return {"message":'helllo world'}
 
+
 @app.route('/user/login', methods=["POST"])
 def login():
-    user = models.User.query.filter_by(email = request.json['email']).first()
-    
-    if user.password == request.json['password']:
-        return{"user":user.to_json()}
-        
-    else:
-        return{'message':'login failed'},401
+    try:
+        user = models.User.query.filter_by(email = request.json['email']).first()
+        if bcrypt.check_password_hash(user.password,request.json['password']):
+            encrypted_id = jwt.encode({'user_id':user.id},os.environ.get('JWT_SECRET'),algorithm="HS256")
+            return{"user":user.to_json(),'user_id':encrypted_id}
 
+    except:
+        print('login failed')
+        return{'message':'Unable to find Username/Email'},401
+
+    finally:
+        print('user loging route is active')
+            
+    
 
 
 @app.route('/user/signup',methods=["POST"])
 def sign_up():
     try:
+        pw_hash = bcrypt.generate_password_hash(request.json['password']).decode('utf-8')
         user = models.User(
             name=request.json['name'],
             email = request.json['email'],
-            password = request.json['password']
-            
+            password = pw_hash
         )
         models.db.session.add(user)
         models.db.session.commit()
-        return{"message":'welcome new user', "user": user.to_json()}
+
+        encrypted_id = jwt.encode({'user_id':user.id},os.environ.get('JWT_SECRET'),algorithm='HS256')
+        print('user has been created')
+        return{"message":'welcome new user', "user": user.to_json(),"user_id":encrypted_id}
     
-    except sqlalchemy.exc.IntegrityError as e:
-        print (e)
-        return{"message":'can not signup'},401
-
-
-
+    except:
+        print ('signup failed')
+        return{"message":'This email has already been used.'},401
+    
+    finally:
+        print('user signup route is active')
+            
+    
 
 @app.route('/user/verify',methods=["GET"])
 def verify():
-        user = models.User.query.filter_by(id=request.headers["Authorization"]).first()
-        print(request.headers)
-        if user:
-            return{"user":user.to_json()}
-        else:
+        try:
+            decrypted_id = jwt.decode(request.headers["Authorization"],os.environ.get("JWT_SECRET"),algorithms=['HS256'])["user_id"]
+            user = models.User.query.filter_by(id=decrypted_id).first()
+            print(request.headers)
+            if user:
+                return{"message":"user has been verified","user": user.to_json()}
+        except:
+            print('verification failed')
             return{"message":'user not found'},404
+        finally:
+            print("user verify route is active" )
+
     
-@app.route('/user',methods=["GET", 'POST', 'DELETE'])
+@app.route('/user',methods=["GET", 'POST'])
 def user_info():
         
     if request.method == 'GET':
@@ -80,9 +100,13 @@ def user_info():
             user = models.User.query.filter_by(id=request.headers["Authorization"]).first()
             print(request.headers)
             if user:
+                print('here is a list of users')
                 return {"user":user.to_json()}
         except sqlalchemy.exc.IntegrityError:
+            print('can not find any user')
             return{'message':'can not find user'},404
+        finally:
+            print('user "get" route is active')
         
     elif request.method == 'POST':
         try:
@@ -92,11 +116,18 @@ def user_info():
                 user.email = request.json['email']
                 user.password = request.json['password']
                 models.db.session.commit()
+                print('user information has been updated')
                 return {"user":user.to_json()}
+            
         except sqlalchemy.exc.IntegrityError:
+            print('can not update existing user')
             return{'message':'can not update user'},404
-
-
+        
+        finally:
+            print('user post route is active')
+        
+        
+                    
 @app.route('/stocks',methods=["GET"])
 
 def stocks():
@@ -143,11 +174,6 @@ def stock_info():
         return{"message":'can not find info'}
 
 
-        
-
-
-
-
 
 @app.route('/stock/history',methods=["GET"])
 def stock_history():
@@ -157,12 +183,17 @@ def stock_history():
         response = requests.get(f'https://api.coinranking.com/v2/coin/{query}/history?timePeriod={time}').json()   
 
         if response:
+            print('single crypto history has been located')
             return{'message':"one stock", "result":response}
         else:
+            print("unable to locate crypto's history")
             return{"message": 'can not find data'},400
         
     except sqlalchemy.exc.IntegrityError:
-        return{"message":'can not find con'}
+        print("crypto's uuid is not a match")
+        return{"message":'can not find data'},400
+    finally:
+        print('locating crypto history is working')
 
 
 @app.route('/stock/save', methods=['POST'])
@@ -176,19 +207,28 @@ def stock_save():
         )
         models.db.session.add(watchlist)
         models.db.session.commit()
+        print('crypto has been added')
         return{"message":'watchlist has been added', "watchlist": watchlist.to_json()}
     except sqlalchemy.exc.IntegrityError:
+        print('unable to add crypto')
         return{"message":'can not save'}
+    finally:
+        print('stock save route is active')
+
 
 @app.route("/stock/watchlist", methods=['GET'])
 def watch_list():
     try:
-        print(request.headers["Authorization"])
+        # print(request.headers["Authorization"])
         watchlist=models.Watchlist.query.filter_by(user_id=request.headers["Authorization"]).all()
-        print(watchlist)
+        # print(watchlist)
+        print('user watchlist has been found')
         return{"message":'watchlist has been added', "watchlist": [w.to_json() for w in watchlist] }
     except sqlalchemy.exc.IntegrityError:
+        print("unable to find user watchlist")
         return{"message":'can not get to watchlist'}
+    finally:
+        print('user watch list route is active')
 
 
 
